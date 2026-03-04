@@ -1,0 +1,88 @@
+{
+  "config": {
+    "chainId": 9000,
+    "homesteadBlock": 0,
+    "eip150Block": 0,
+    "eip155Block": 0,
+    "eip158Block": 0,
+    "byzantiumBlock": 0,
+    "constantinopleBlock": 0,
+    "petersburgBlock": 0,
+    "istanbulBlock": 0,
+    "berlinBlock": 0,
+    "londonBlock": 0,
+    "poc": {
+      "epochLength": 100,
+      "blockTime": 3,
+      "minStake": "10000000000000000000000",
+      "weights": {
+        "staking": 30,
+        "compute": 20,
+        "uptime": 15,
+        "accuracy": 15,
+        "network": 10,
+        "storage": 5,
+        "reputation": 5
+      }
+    }
+  },
+  "difficulty": "0x1",
+  "gasLimit": "0x1C9C380",
+  "extraData": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "alloc": {
+    "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf": {
+      "balance": "0x200000000000000000000000000000000000000000000000000000000000000"
+    },
+    "0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF": {
+      "balance": "0x200000000000000000000000000000000000000000000000000000000000000"
+    },
+    "0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69": {
+      "balance": "0x200000000000000000000000000000000000000000000000000000000000000"
+    },
+    "0x1efF47bc3a10a45D4B230B5d10E37751FE6AA718": {
+      "balance": "0x200000000000000000000000000000000000000000000000000000000000000"
+    },
+    "0xe1AB8145F7E55DC933d51a18c793F901A3A0b276": {
+      "balance": "0x200000000000000000000000000000000000000000000000000000000000000"
+    },
+    "0xFaucet0000000000000000000000000000000099": {
+      "balance": "0x52B7D2DCC80CD2E4000000"
+    }
+  },
+  "validators": [
+    {
+      "address": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf",
+      "stake": "10000000000000000000000",
+      "commission": 10,
+      "moniker": "validator-1"
+    },
+    {
+      "address": "0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF",
+      "stake": "10000000000000000000000",
+      "commission": 10,
+      "moniker": "validator-2"
+    },
+    {
+      "address": "0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69",
+      "stake": "10000000000000000000000",
+      "commission": 10,
+      "moniker": "validator-3"
+    },
+    {
+      "address": "0x1efF47bc3a10a45D4B230B5d10E37751FE6AA718",
+      "stake": "10000000000000000000000",
+      "commission": 10,
+      "moniker": "validator-4"
+    },
+    {
+      "address": "0xe1AB8145F7E55DC933d51a18c793F901A3A0b276",
+      "stake": "10000000000000000000000",
+      "commission": 10,
+      "moniker": "validator-5"
+    }
+  ],
+  "timestamp": "0x0",
+  "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
+  "nonce": "0x0000000000000000",
+  "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+}

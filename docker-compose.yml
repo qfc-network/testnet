@@ -1,0 +1,42 @@
+# QFC Testnet - Join as Community Node
+#
+# Quick start:
+#   curl -sLO https://raw.githubusercontent.com/qfc-network/testnet/main/docker-compose.yml
+#   curl -sLO https://raw.githubusercontent.com/qfc-network/testnet/main/genesis.json
+#   docker compose up -d
+#
+# Mining (earn compute contribution):
+#   QFC_MINING_ENABLED=true docker compose up -d
+#
+# Validator (requires 10,000+ QFC stake):
+#   QFC_VALIDATOR_KEY=<your-key> QFC_MINING_ENABLED=true docker compose up -d
+
+services:
+  qfc-node:
+    image: ghcr.io/qfc-network/qfc-core:main
+    container_name: qfc-node
+    restart: unless-stopped
+    ports:
+      - "8545:8545"       # JSON-RPC
+      - "8546:8546"       # WebSocket
+      - "30303:30303"     # P2P (must be reachable)
+      - "6060:6060"       # Metrics (optional, remove if not needed)
+    environment:
+      - QFC_DATA_DIR=/data
+      - QFC_RPC_ADDR=0.0.0.0:8545
+      - QFC_P2P_PORT=30303
+      - QFC_LOG_LEVEL=info
+      - RUST_LOG=info,qfc=info
+      # --- Bootnode ---
+      - QFC_BOOTNODES=${QFC_BOOTNODES:-/ip4/bootnode.testnet.qfc.network/tcp/30303/p2p/12D3KooWBootNodePeerIdPlaceholder}
+      # --- Validator (leave empty for full node) ---
+      - QFC_VALIDATOR_KEY=${QFC_VALIDATOR_KEY:-}
+      # --- Mining (set to true to contribute compute) ---
+      - QFC_MINING_ENABLED=${QFC_MINING_ENABLED:-false}
+      - QFC_MINING_THREADS=${QFC_MINING_THREADS:-2}
+    volumes:
+      - qfc-data:/data
+      - ./genesis.json:/config/genesis.json:ro
+
+volumes:
+  qfc-data:
