@@ -48,13 +48,19 @@ detect_platform() {
             PLATFORM_DESC="macOS Intel (CPU)"
         fi
     elif [[ "$OS" == "Linux" ]]; then
-        PLATFORM="linux-x86_64"
-        if command -v nvidia-smi &>/dev/null; then
-            BACKEND="cuda"
-            PLATFORM_DESC="Linux x86_64 (NVIDIA GPU)"
-        else
+        if [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then
+            PLATFORM="linux-arm64"
             BACKEND="cpu"
-            PLATFORM_DESC="Linux x86_64 (CPU)"
+            PLATFORM_DESC="Linux ARM64 (CPU)"
+        else
+            PLATFORM="linux-x86_64"
+            if command -v nvidia-smi &>/dev/null; then
+                BACKEND="cuda"
+                PLATFORM_DESC="Linux x86_64 (NVIDIA GPU)"
+            else
+                BACKEND="cpu"
+                PLATFORM_DESC="Linux x86_64 (CPU)"
+            fi
         fi
     else
         err "Unsupported OS: $OS"
