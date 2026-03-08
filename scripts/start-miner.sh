@@ -3,10 +3,11 @@
 # Provides AI compute to the QFC network and earns rewards.
 #
 # Usage:
-#   ./start-miner.sh              # First run: downloads binary, generates wallet, starts
+#   ./start-miner.sh              # Start miner (auto-checks for updates on every launch)
 #   ./start-miner.sh --status     # Check miner status
-#   ./start-miner.sh --update     # Update to latest version
+#   ./start-miner.sh --update     # Force update to latest version
 #   BUILD=1 ./start-miner.sh      # Force build from source instead of downloading
+#   QFC_NO_UPDATE=1 ./start-miner.sh  # Skip auto-update check
 #
 # Supports: macOS (Intel/Apple Silicon), Linux (x86_64)
 # No Rust toolchain required — downloads pre-built binaries.
@@ -187,9 +188,68 @@ if [[ "${1:-}" == "--update" ]]; then
     else
         download_binary || build_from_source
     fi
+    # Save version tag
+    LATEST_VER=$(curl -sfL "https://api.github.com/repos/$GITHUB_REPO/releases/latest" \
+        | grep '"tag_name"' | head -1 | cut -d'"' -f4) || true
+    [[ -n "${LATEST_VER:-}" ]] && echo "$LATEST_VER" > "$INSTALL_DIR/.version"
     ok "Update complete. Restart the miner to use the new version."
     exit 0
 fi
+
+# --- Check for updates (compares local version tag with latest GitHub release) ---
+check_for_update() {
+    # Skip if no binary installed yet
+    [[ -x "$BINARY" ]] || return 0
+
+    # Read saved version tag (if any)
+    local VERSION_FILE="$INSTALL_DIR/.version"
+    local LOCAL_VER=""
+    [[ -f "$VERSION_FILE" ]] && LOCAL_VER=$(cat "$VERSION_FILE" 2>/dev/null)
+
+    info "Checking for updates..."
+    local LATEST_VER
+    LATEST_VER=$(curl -sfL "https://api.github.com/repos/$GITHUB_REPO/releases/latest" \
+        | grep '"tag_name"' | head -1 | cut -d'"' -f4) || true
+
+    if [[ -z "${LATEST_VER:-}" ]]; then
+        warn "Could not check for updates (GitHub API unreachable). Continuing with current version."
+        return 0
+    fi
+
+    if [[ "$LOCAL_VER" == "$LATEST_VER" ]]; then
+        ok "qfc-miner is up to date ($LATEST_VER)"
+        return 0
+    fi
+
+    if [[ -n "$LOCAL_VER" ]]; then
+        info "Update available: $LOCAL_VER → $LATEST_VER"
+    else
+        info "Latest release: $LATEST_VER (local version unknown)"
+    fi
+
+    echo -e "${YELLOW}  ┌──────────────────────────────────────────────┐${NC}"
+    echo -e "${YELLOW}  │  A new version of qfc-miner is available!   │${NC}"
+    echo -e "${YELLOW}  │  ${LOCAL_VER:-unknown} → ${LATEST_VER}$(printf '%*s' $((34 - ${#LATEST_VER} - ${#LOCAL_VER:-unknown})) '')│${NC}"
+    echo -e "${YELLOW}  └──────────────────────────────────────────────┘${NC}"
+
+    # Auto-update unless QFC_NO_UPDATE=1
+    if [[ "${QFC_NO_UPDATE:-0}" == "1" ]]; then
+        warn "Auto-update disabled (QFC_NO_UPDATE=1). Skipping."
+        return 0
+    fi
+
+    info "Updating qfc-miner..."
+    VERSION="$LATEST_VER"
+    if [[ "$BUILD" == "1" ]]; then
+        build_from_source
+    else
+        download_binary || build_from_source
+    fi
+
+    # Save version tag
+    echo "$LATEST_VER" > "$VERSION_FILE"
+    ok "Updated to $LATEST_VER"
+}
 
 # === Main flow ===
 
@@ -209,10 +269,20 @@ mkdir -p "$INSTALL_DIR"
 
 if [[ -x "$BINARY" && "${1:-}" != "--force" ]]; then
     ok "qfc-miner already installed"
+    # Check for updates on every start
+    check_for_update
 elif [[ "$BUILD" == "1" ]]; then
     build_from_source
+    # Save initial version tag
+    INIT_VER=$(curl -sfL "https://api.github.com/repos/$GITHUB_REPO/releases/latest" \
+        | grep '"tag_name"' | head -1 | cut -d'"' -f4) || true
+    [[ -n "${INIT_VER:-}" ]] && echo "$INIT_VER" > "$INSTALL_DIR/.version"
 else
     download_binary || build_from_source
+    # Save initial version tag
+    INIT_VER=$(curl -sfL "https://api.github.com/repos/$GITHUB_REPO/releases/latest" \
+        | grep '"tag_name"' | head -1 | cut -d'"' -f4) || true
+    [[ -n "${INIT_VER:-}" ]] && echo "$INIT_VER" > "$INSTALL_DIR/.version"
 fi
 
 # --- Step 3: Generate wallet (if needed) ---
