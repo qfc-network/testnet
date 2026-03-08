@@ -213,12 +213,11 @@ else
     info "Generating new miner wallet..."
     WALLET_OUTPUT=$("$BINARY" --generate-wallet 2>&1)
 
-    ADDR=$(echo "$WALLET_OUTPUT" | grep -i "address" | awk '{print $NF}' | tr -d '[:space:]')
-    KEY=$(echo "$WALLET_OUTPUT" | grep -i "private" | awk '{print $NF}' | tr -d '[:space:]')
+    ADDR=$(echo "$WALLET_OUTPUT" | grep -oE '0x[0-9a-fA-F]{40}' | head -1)
+    KEY=$(echo "$WALLET_OUTPUT" | grep -oE '0x[0-9a-fA-F]{64}' | head -1)
 
     if [[ -z "$ADDR" || -z "$KEY" ]]; then
-        ADDR=$(echo "$WALLET_OUTPUT" | head -1 | awk '{print $NF}')
-        KEY=$(echo "$WALLET_OUTPUT" | tail -1 | awk '{print $NF}')
+        err "Failed to parse wallet output. Raw output:\n$WALLET_OUTPUT"
     fi
 
     cat > "$WALLET_FILE" <<EOJSON
