@@ -8,6 +8,7 @@
 #   ./start-miner.sh --update     # Force update to latest version
 #   BUILD=1 ./start-miner.sh      # Force build from source instead of downloading
 #   QFC_NO_UPDATE=1 ./start-miner.sh  # Skip auto-update check
+#   QFC_NO_TUI=1 ./start-miner.sh     # Disable TUI dashboard (plain log output)
 #
 # Supports: macOS (Intel/Apple Silicon), Linux (x86_64)
 # No Rust toolchain required — downloads pre-built binaries.
@@ -341,9 +342,14 @@ echo "  │  Press Ctrl+C to stop                   │"
 echo "  └─────────────────────────────────────────┘"
 echo ""
 
+DASHBOARD_FLAG=""
+if [ "${QFC_NO_TUI:-0}" != "1" ]; then
+    DASHBOARD_FLAG="--dashboard"
+fi
+
 exec "$BINARY" \
     --wallet "$ADDR" \
     --private-key "$KEY" \
     --validator-rpc "$RPC_URL" \
     --backend "$BACKEND" \
-    --dashboard
+    $DASHBOARD_FLAG
