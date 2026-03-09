@@ -343,8 +343,16 @@ echo "  └───────────────────────
 echo ""
 
 DASHBOARD_FLAG=""
-if [ "${QFC_NO_TUI:-0}" != "1" ]; then
-    DASHBOARD_FLAG="--dashboard"
+if [ -t 0 ] && [ "${QFC_NO_TUI:-0}" != "1" ]; then
+    echo -e "${CYAN}Enable TUI dashboard? (interactive stats & logs)${NC}"
+    echo -e "  ${GREEN}Y${NC} = TUI dashboard  |  ${YELLOW}n${NC} = plain log output"
+    printf "  [Y/n]: "
+    read -r -t 10 ans || ans=""
+    case "$ans" in
+        [nN]) ;;
+        *)    DASHBOARD_FLAG="--dashboard" ;;
+    esac
+    echo ""
 fi
 
 exec "$BINARY" \
