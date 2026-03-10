@@ -256,10 +256,10 @@ check_for_update() {
 # === Main flow ===
 
 echo ""
-echo "  ╔═══════════════════════════════════════╗"
-echo "  ║   QFC Inference Miner Setup           ║"
-echo "  ║   Earn rewards by providing AI compute║"
-echo "  ╚═══════════════════════════════════════╝"
+echo "  ╔═════════════════════════════════════════╗"
+echo "  ║  QFC Inference Miner Setup              ║"
+echo "  ║  Earn rewards by providing AI compute   ║"
+echo "  ╚═════════════════════════════════════════╝"
 echo ""
 
 # --- Step 1: Detect platform ---
@@ -332,14 +332,14 @@ fi
 
 # --- Step 5: Start miner ---
 echo ""
-echo "  ┌─────────────────────────────────────────┐"
-echo "  │  Starting QFC Inference Miner            │"
-echo "  │  Wallet:  ${ADDR:0:16}...                │"
-echo "  │  Backend: $BACKEND                            │"
-echo "  │  RPC:     $RPC_URL   │"
-echo "  │                                         │"
-echo "  │  Press Ctrl+C to stop                   │"
-echo "  └─────────────────────────────────────────┘"
+echo "  ┌───────────────────────────────────────────────┐"
+printf "  │  %-43s │\n" "Starting QFC Inference Miner"
+printf "  │  %-43s │\n" "Wallet:  ${ADDR:0:20}..."
+printf "  │  %-43s │\n" "Backend: $BACKEND"
+printf "  │  %-43s │\n" "RPC:     $RPC_URL"
+printf "  │  %-43s │\n" ""
+printf "  │  %-43s │\n" "Press Ctrl+C to stop"
+echo "  └───────────────────────────────────────────────┘"
 echo ""
 
 DASHBOARD_FLAG=""
