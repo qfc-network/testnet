@@ -121,19 +121,19 @@ QFC v2.0 supports **AI inference mining** — provide compute power to run AI mo
 ### One-Click Start (macOS / Linux)
 
 ```bash
-curl -sLO https://raw.githubusercontent.com/qfc-network/testnet/main/scripts/start-miner.sh
+curl -sLO https://raw.githubusercontent.com/qfc-network/qfc-miner/main/scripts/start-miner.sh
 chmod +x start-miner.sh
 ./start-miner.sh
 ```
 
 The script automatically:
-1. Installs Rust (if needed)
-2. Detects your hardware (CPU/Metal/CUDA)
-3. Builds the miner binary
-4. Generates a wallet
-5. Requests faucet tokens
-6. Starts mining
+1. Detects your hardware (CPU / Metal / CUDA / OpenCL)
+2. Downloads the pre-built binary for your platform
+3. Generates a wallet
+4. Requests faucet tokens
+5. Starts mining
 
+No Rust toolchain required — downloads pre-built binaries. Falls back to build-from-source if needed.
 
 ### Windows (PowerShell)
 
@@ -141,15 +141,24 @@ The script automatically:
 iwr https://raw.githubusercontent.com/qfc-network/qfc-miner/main/scripts/install.ps1 | iex
 ```
 
-The script automatically:
-1. Detects your GPU (NVIDIA CUDA or CPU fallback)
-2. Downloads the pre-built `qfc-miner.exe`
-3. Generates a wallet
-4. Requests faucet tokens
-5. Starts mining
-
 > **Requires:** Windows 10/11 x86_64, PowerShell 5.1+
 > **NVIDIA GPU:** Automatically used if `nvidia-smi` is found
+
+### Supported Platforms
+
+| Platform | File | GPU Support |
+|----------|------|-------------|
+| macOS Apple Silicon | `qfc-macos-arm64.tar.gz` | Metal |
+| macOS Intel | `qfc-macos-intel.tar.gz` | CPU |
+| Linux x86_64 | `qfc-linux-x86_64.tar.gz` | CPU |
+| Linux x86_64 CUDA | `qfc-linux-x86_64-cuda.tar.gz` | NVIDIA GPU (H100/H200/A100/RTX) |
+| Linux x86_64 OpenCL | `qfc-linux-x86_64-opencl.tar.gz` | AMD/Intel GPU |
+| Linux ARM64 | `qfc-linux-arm64.tar.gz` | CPU |
+| Linux ARM64 CUDA | `qfc-linux-arm64-cuda.tar.gz` | NVIDIA GPU (DGX Spark / Grace Blackwell) |
+| Windows x86_64 | `qfc-windows-x86_64.zip` | CPU |
+| Windows x86_64 CUDA | `qfc-windows-x86_64-cuda.zip` | NVIDIA GPU |
+
+GPU auto-detection priority: **CUDA > Metal > ROCm > OpenCL > CPU**
 
 ### Manual Setup
 
@@ -160,7 +169,13 @@ cd qfc-core
 cargo build --release --features candle --bin qfc-miner
 
 # Apple Silicon (Metal GPU):
-# cargo build --release --features metal,candle --bin qfc-miner
+# cargo build --release --features coreml --bin qfc-miner
+
+# NVIDIA GPU (CUDA):
+# cargo build --release --features cuda,candle --bin qfc-miner
+
+# AMD/Intel GPU (OpenCL):
+# cargo build --release --features opencl,candle --bin qfc-miner
 
 # 2. Generate wallet
 ./target/release/qfc-miner --generate-wallet
@@ -170,16 +185,16 @@ cargo build --release --features candle --bin qfc-miner
   --wallet <YOUR_WALLET_ADDRESS> \
   --private-key <YOUR_PRIVATE_KEY> \
   --validator-rpc https://rpc.testnet.qfc.network \
-  --backend cpu
+  --backend auto
 ```
 
 ### GPU Tiers & Supported Tasks
 
 | Tier | Memory | Hardware Examples | Tasks |
 |------|--------|-------------------|-------|
-| Hot | 32 GB+ | M2 Ultra, M3 Max, A100 | All models, large LLMs |
-| Warm | 16–31 GB | M1/M2/M3 Pro | Medium models, embeddings |
-| Cold | < 16 GB | Intel Mac, M1/M2 base | Small models, embeddings |
+| Hot | 32 GB+ | M2 Ultra, M3 Max, A100, H100, H200 | All models, large LLMs |
+| Warm | 16–31 GB | M1/M2/M3 Pro, RTX 4090, DGX Spark | Medium models, embeddings |
+| Cold | < 16 GB | Intel Mac, M1/M2 base, RTX 3060 | Small models, embeddings |
 
 ### Environment Variables
 
@@ -188,7 +203,7 @@ cargo build --release --features candle --bin qfc-miner
 | `QFC_MINER_RPC_URL` | `https://rpc.testnet.qfc.network` | Validator RPC endpoint |
 | `QFC_MINER_WALLET` | — | Wallet address (hex) |
 | `QFC_MINER_PRIVATE_KEY` | — | Private key (hex) |
-| `QFC_MINER_BACKEND` | `auto` | `cpu`, `metal`, `cuda`, or `auto` |
+| `QFC_MINER_BACKEND` | `auto` | `cpu`, `metal`, `cuda`, `opencl`, or `auto` |
 | `QFC_MINER_MODEL_DIR` | `./models` | Model cache directory |
 | `QFC_MINER_MAX_MEMORY` | `0` (auto) | Max memory in MB |
 
@@ -198,8 +213,8 @@ cargo build --release --features candle --bin qfc-miner
 docker run -e QFC_MINER_WALLET=<ADDR> \
            -e QFC_MINER_PRIVATE_KEY=<KEY> \
            -e QFC_MINER_RPC_URL=https://rpc.testnet.qfc.network \
-           -e QFC_MINER_BACKEND=cpu \
-           ghcr.io/qfc-network/qfc-miner:main
+           -e QFC_MINER_BACKEND=auto \
+           ghcr.io/qfc-network/qfc-core:latest
 ```
 
 ### How It Works
@@ -238,8 +253,15 @@ docker compose pull
 docker compose up -d
 ```
 
+**Update miner:**
+```bash
+./start-miner.sh --update
+```
+
 ## Links
 
 - [QFC Core](https://github.com/qfc-network/qfc-core) — Blockchain source code
 - [Explorer](https://explorer.testnet.qfc.network) — Block explorer
 - [Faucet](https://faucet.testnet.qfc.network) — Get test tokens
+- [Games](https://games.testnet.qfc.network) — On-chain casino games
+- [NFT Marketplace](https://nft.testnet.qfc.network) — NFT marketplace
