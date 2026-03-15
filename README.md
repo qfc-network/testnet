@@ -226,6 +226,23 @@ docker run -e QFC_MINER_WALLET=<ADDR> \
 5. Honest miners earn block rewards proportional to compute contribution
 6. Dishonest proofs → 5% stake slash + 6h ban
 
+### Can I Use Existing Mining Hardware?
+
+QFC inference mining requires **general-purpose compute** (CPU/GPU) to run AI models — not hash-specific ASICs.
+
+| Hardware | Compatible | Notes |
+|----------|-----------|-------|
+| **ETH GPU rigs (NVIDIA)** | Yes | RTX 3060/3070/3080/3090 → `linux-x86_64-cuda` |
+| **ETH GPU rigs (AMD)** | Yes | RX 6800/6900/7900 → `linux-x86_64-opencl` |
+| **NVIDIA datacenter** | Yes | A100/H100/H200/B200 → `linux-x86_64-cuda` |
+| **NVIDIA DGX Spark** | Yes | Grace Blackwell ARM → `linux-arm64-cuda` |
+| **Apple Mac** | Yes | M1/M2/M3/M4 → Metal GPU acceleration |
+| **BTC ASIC (Antminer S19/S21)** | No | SHA-256 only, no general compute |
+| **LTC ASIC (Scrypt)** | No | Fixed-function chip |
+| **FPGA miners** | No | Cannot run AI models |
+
+Post-Merge Ethereum GPU rigs are a great fit — `start-miner.sh` auto-detects your GPU and downloads the right binary.
+
 ## Hardware Requirements
 
 | Role | CPU | RAM | Disk | Network |
