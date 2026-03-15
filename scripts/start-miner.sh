@@ -65,9 +65,14 @@ detect_platform() {
                     BACKEND="rocm"
                     PLATFORM_DESC="Linux x86_64 (AMD GPU via ROCm)"
                 else
-                    BACKEND="cpu"
-                    PLATFORM_DESC="Linux x86_64 (AMD GPU detected — install ROCm for GPU acceleration)"
+                    PLATFORM="linux-x86_64-opencl"
+                    BACKEND="opencl"
+                    PLATFORM_DESC="Linux x86_64 (AMD GPU via OpenCL)"
                 fi
+            elif lspci 2>/dev/null | grep -qi 'intel.*vga\|intel.*display'; then
+                PLATFORM="linux-x86_64-opencl"
+                BACKEND="opencl"
+                PLATFORM_DESC="Linux x86_64 (Intel GPU via OpenCL)"
             else
                 BACKEND="cpu"
                 PLATFORM_DESC="Linux x86_64 (CPU)"
@@ -141,6 +146,8 @@ build_from_source() {
         FEATURES="cuda,candle"
     elif [[ "$BACKEND" == "rocm" ]]; then
         FEATURES="rocm"
+    elif [[ "$BACKEND" == "opencl" ]]; then
+        FEATURES="opencl,candle"
     fi
 
     local SRC_DIR="$INSTALL_DIR/qfc-core"
