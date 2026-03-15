@@ -86,6 +86,8 @@ jobs:
       - name: Build qfc-miner
         working-directory: qfc-core
         shell: bash
+        env:
+          CUDA_COMPUTE_CAP: ${{ contains(matrix.features, 'cuda') && '89' || '' }}
         run: |
           cargo build --release \
             --features "${{ matrix.features }}" \
